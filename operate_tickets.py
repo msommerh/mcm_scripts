@@ -1,12 +1,12 @@
 import sys
 import argparse
-sys.path.append('/afs/cern.ch/cms/PPD/PdmV/tools/McM/')
+sys.path.append("/afs/cern.ch/cms/PPD/PdmV/tools/McM/")
 from rest import McM
 
 
-parser = argparse.ArgumentParser(description='Check and inject tickets in McM')
-parser.add_argument('--tickets', type=str, nargs="+", required=True)
-parser.add_argument('--dry', default=False, action='store_true')
+parser = argparse.ArgumentParser(description="Check and inject tickets in McM")
+parser.add_argument("--tickets", type=str, nargs="+", required=True)
+parser.add_argument("--dry", default=False, action="store_true")
 
 args = parser.parse_args()
 dry = args.dry
@@ -24,7 +24,7 @@ for ticket in tickets:
     all_approved = True
     requests_in_ticket = mcm.root_requests_from_ticket(ticket)
     for request in requests_in_ticket:
-        if request['approval'] != "approve" or request['status'] != "approved":
+        if request["approval"] != "approve" or request["status"] != "approved":
             all_approved = False
             break
     if not all_approved:
