@@ -297,7 +297,14 @@ class McM:
         """
         res = self.__get('restapi/chained_requests/flow/%s' % (chained_request_prepid))
         return res.get('results', None)
-    
+
+    def reserve(self, chained_request_prepid):
+        """
+        Reserve a chained request
+        """
+        res = self.__get('restapi/chained_requests/flow/%s/reserve' % (chained_request_prepid))
+        return res.get('results', None)
+
     def root_requests_from_ticket(self, ticket_prepid):
         """
         Return list of all root (first ones in the chain) requests of a ticket
@@ -315,3 +322,17 @@ class McM:
 
         requests = self.get_range_of_requests(query)
         return requests
+
+    def steps_from_chained_request(self, chained_request_prepid):
+        """
+        Return list of all steps (individual requests) of a chained request
+        """
+        mccm = self.get('chained_requests', chained_request_prepid)
+        return [step for step in mccm.get('chain', [])]
+
+    def chained_requests_from_ticket(self, ticket_prepid):
+        """
+        Return list of all chained requests of a ticket (prepids)
+        """
+        mccm = self.get('mccms', ticket_prepid)
+        return [request for request in mccm.get('generated_chains', [])]
