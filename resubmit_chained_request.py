@@ -8,14 +8,17 @@ parser = argparse.ArgumentParser(
     description="Resubmit chained requests that are stuck in submit-approved")
 parser.add_argument("--prepids", type=str, nargs="+")
 parser.add_argument("--tickets", type=str, nargs="+")
+parser.add_argument("--root_requests", type=str, nargs="+", default=None)
 parser.add_argument("--dry", default=False, action="store_true")
 
 args = parser.parse_args()
 dry = args.dry
 prepids = args.prepids
 tickets = args.tickets
+root_requests = args.root_requests
 
-if prepids is None and tickets is None:
+# making sure user input is meaningful
+if prepids is None and tickets is None and root_requests is None:
     raise ValueError("Either chained request prepids or tickets must "
                      "be provided!")
 
@@ -39,6 +42,31 @@ if tickets is not None:
     for ticket in tickets:
         prepids += (mcm.chained_requests_from_ticket(ticket))
 
+# in case that root_requests are provided, identify their chained requests
+if root_requests is not None:
+    print("Will resubmit all submit-approved chained requests on top "
+          "of the following root requests:")
+    for root_request in root_requests:
+        print("\t", root_request)
+        
+    if prepids is None:
+        prepids = []
+    else:
+        print("Will append the chained requests found on top of root requests "
+              "to the ones already provided:")
+        for prepid in prepids:
+            print("\t", prepid)
+    
+    for root_request in root_requests:
+        mcm_request = mcm.get("requests", object_id=root_request)
+        chains = mcm_request["member_of_chain"]
+        if len(chains) != 1:
+            print(f"The following root request is member of {len(chains)}"
+                  f" chains instead of 1: {root_request}")
+            input("Press enter to skip it or abort with Ctrl+C")
+            continue
+        prepids.append(chains[0])
+
 print("\nThe following chained requests will be resubmitted (if in state "
       "submit-approved):")
 for prepid in prepids:
@@ -58,7 +86,7 @@ for request in prepids:
             break
     if not all_submit_approved:
         print("\tNot all steps are in submit-approved, skipping...")
-        break
+        continue
 
     # soft-reset steps starting from last one
     all_success = True
