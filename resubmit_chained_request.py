@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(
     description="Resubmit chained requests that are stuck in submit-approved")
 parser.add_argument("--prepids", type=str, nargs="+")
 parser.add_argument("--tickets", type=str, nargs="+")
-parser.add_argument("--root_requests", type=str, nargs="+", default=None)
+parser.add_argument("--root-requests", type=str, nargs="+", default=None)
 parser.add_argument("--dry", default=False, action="store_true")
 
 args = parser.parse_args()

@@ -7,14 +7,16 @@ from rest import McM
 parser = argparse.ArgumentParser(
     description="Remove chained requests, including all the"
                 " follow-up requests in the chain.")
-parser.add_argument("--chained_requests", type=str, nargs="+", default=None)
-parser.add_argument("--root_requests", type=str, nargs="+", default=None)
+parser.add_argument("--chained-requests", type=str, nargs="+", default=None)
+parser.add_argument("--root-requests", type=str, nargs="+", default=None)
+parser.add_argument("--hard-reset", default=False, action="store_true")
 parser.add_argument("--dry", default=False, action="store_true")
 
 args = parser.parse_args()
 dry = args.dry
 chained_requests = args.chained_requests
 root_requests = args.root_requests
+hard_reset = args.hard_reset
 
 # making sure user input is meaningful
 assert not (chained_requests is None and root_requests is None)
@@ -69,8 +71,12 @@ for chained_request in chained_requests:
         mcm.reset(step)
         mcm.delete("requests", step)
 
-    print("\tResetting root request...")
-    mcm.reset(steps[0])
+    if not hard_reset:
+        print("\tSoft-resetting root request...")
+        mcm.soft_reset(steps[0])
+    else:
+        print("\tHard-resetting root request...")
+        mcm.reset(steps[0])
 
     print("\tRemoving chained request...")
     mcm.delete("chained_requests", chained_request)
