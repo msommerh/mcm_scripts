@@ -22,13 +22,14 @@ hard_reset = args.hard_reset
 assert not (chained_requests is None and root_requests is None)
 if chained_requests is None:
     assert root_requests is not None
+    chained_requests = []
 if root_requests is None:
     assert chained_requests is not None
+    root_requests = []
 
 mcm = McM(dev=dry)
 
 # in case that root_requests are provided, identify their chained requests
-chained_requests = []
 for request in root_requests:
     mcm_request = mcm.get("requests", object_id=request)
     chains = mcm_request["member_of_chain"]
